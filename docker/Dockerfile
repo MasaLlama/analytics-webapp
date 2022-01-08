@@ -1,10 +1,10 @@
-FROM python:3.9
+FROM python:3.9.6
 
 WORKDIR /app
 
 COPY requirements.txt ./requirements.txt
 
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 EXPOSE 8501
 

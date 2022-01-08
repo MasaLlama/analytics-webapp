@@ -1,7 +1,7 @@
 # Basic Analytics Web App using Streamlit
 
 1. Build Docker Image
- docker build -t analyticswebapp:latest -f docker/Dockerfile 
+ docker build -t analyticswebapp:latest -f docker/Dockerfile .
 2. check to see if image is present
    docker image ls
 3. Create the container
