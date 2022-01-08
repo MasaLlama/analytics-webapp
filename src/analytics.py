@@ -14,14 +14,13 @@ sns.set_style('darkgrid')
 st.title('Downtown Condominium Market')
 
 DATE_COLUMN = 'date/time'
-DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
-         'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
+DATA_PATH = ('data/data_clean5.csv')
 @st.cache
 def load_data():
-    data = pd.read_csv('data/data_clean5.csv')
+    data = pd.read_csv(DATA_PATH)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
-    #data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
+    
     return data
 
 # Create a text element and let the reader know the data is loading.
@@ -138,40 +137,10 @@ filtered= df[df.neighbourhood == 'Downtown']
 with row5_1, _lock:
     # page breakdown
     st.subheader('Book Length Distribution')
-    fig = Figure()
-    ax = fig.subplots()
-    sns.histplot(pd.to_numeric(df['book.num_pages'].dropna()), ax=ax, kde=True)
-    ax.set_xlabel('Number of Pages')
-    ax.set_ylabel('Density')
-    st.pyplot(fig)
-
-    book_len_avg = round(np.mean(pd.to_numeric(df['book.num_pages'].dropna())))
-    book_len_max = pd.to_numeric(df['book.num_pages']).max()
-    row_long = df[pd.to_numeric(df['book.num_pages']) == book_len_max]
-    longest_book = row_long['book.title_without_series'].iloc[0]
-
-    st.markdown("Your average book length is **{} pages**, and your longest book read is **{} at {} pages!**.".format(
-        book_len_avg, longest_book, int(book_len_max)))
+    
 
 
 with row5_2, _lock:
     # length of time until completion
     st.subheader('How Quickly Do You Read?')
-    if has_records:
-        df['days_to_complete'] = (pd.to_datetime(
-            df['read_at']) - pd.to_datetime(df['started_at'])).dt.days
-        fig = Figure()
-        ax = fig.subplots()
-        sns.histplot(pd.to_numeric(
-            df['days_to_complete'].dropna()), ax=ax, kde=True)
-        ax.set_xlabel('Days')
-        ax.set_ylabel('Density')
-        st.pyplot(fig)
-        days_to_complete = pd.to_numeric(df['days_to_complete'].dropna())
-        time_len_avg = 0
-        if len(days_to_complete):
-            time_len_avg = round(np.mean(days_to_complete))
-        st.markdown("On average, it takes you **{} days** between you putting on Goodreads that you're reading a title, and you getting through it! Now let's move on to a gender breakdown of your authors.".format(time_len_avg))
-    else:
-        st.markdown(
-            "We do not have information to find out _when_ you finished reading your books")    
+        
