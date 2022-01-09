@@ -36,19 +36,19 @@ has_records=any(df['neighbourhood'])
 bool_series = df.duplicated(keep='first')
 df=df[~bool_series]
 st.write('Choose an Area of Toronto')
-area_selector=st.multiselect('Multiselect', list(df.neighbourhood.unique()))
+area_selector=st.selectbox('Select', list(df.neighbourhood.unique()))
 st.write('')
 row3_space1, row3_1, row3_space2, row3_2, row3_space3 = st.columns(
     (.1, 1, .1, 1, .1))
 
 #Filtering data by User selection
 #area_selector
-filtered= df[df.neighbourhood == 'Downtown']
+
 
 with row3_1, _lock:
     st.subheader('Listings in Downtown Neighbourhoods')
     if has_records:
-        
+        filtered= df[df.neighbourhood == area_selector]
         chart_data = filtered.groupby(['area'])['price'].agg([len]).rename(columns={'len':'listings'}).reset_index()
         fig = Figure()
         ax = fig.subplots()
@@ -64,11 +64,12 @@ with row3_1, _lock:
     #st.markdown("It looks like you've read a grand total of **{} books with {} authors,** with {} being your most read author! That's awesome. Here's what your reading habits look like since you've started using Goodreads.".format(
         #u_books, u_authors, df['book.authors.author.name'].mode()[0]))
         
-#Filtering data by User selection
+
 #filtered= df[df.neighbourhood == 'Downtown']
 with row3_2, _lock:
     st.subheader("Mean Rent Price")
-    
+    #Filtering data by User selection
+    filtered= df[df.neighbourhood == area_selector]
     chart_data = filtered.groupby(['area'])['price'].mean().reset_index()
     fig = Figure()
     ax=fig.subplots()
@@ -128,15 +129,37 @@ with row4_3, _lock:
     
     st.pyplot(fig)
 
+#Might want to use st.cache for this data
+
+# Drill down section for a specific area 
+area_select_d=st.selectbox('Select an Area in toronto', list(df.neighbourhood.unique()))
+
+# Filter neighbourhoods to only show ones from the selected area
+filtered = df[df.neighbourhood == area_select_d]
+
+#Select a specific area (drilling down)
+neigh_select_d=st.selectbox('Select', list(filtered.area.unique()))
+
+#Filtering data again based on selection
+filtered= filtered[filtered.area == neigh_select_d]
+
 st.write('')
 row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns(
     (.1, 1, .1, 1, .1))
-#Filtering data by User selection
-filtered= df[df.neighbourhood == 'Downtown']
+
 
 with row5_1, _lock:
-    # page breakdown
-    st.subheader('Book Length Distribution')
+    # Create Dynamic Title based on Selection (similar to what condos.ca has)
+    #{building_name} in {area_name},{neighbourhood_name}, {city_name} e.g. 'Waterclub III in The Waterfront, Downtown, Toronto
+    #building_name=filtered['building'].mode()[0]
+    area_name=filtered['area'].mode()[0]
+    neighbourhood_name=filtered['neighbourhood'].mode()[0]
+    city_name=filtered['city'].mode()[0]
+    
+    st.header('Drilled Down Selection')
+    st.markdown('')
+    st.subheader(f'{area_name}, {neighbourhood_name}, {city_name}')
+    st.table(filtered)
     
 
 
