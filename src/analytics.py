@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import squeeze
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -5,7 +6,8 @@ import matplotlib
 import seaborn as sns
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
-
+import plotly.express as px
+import plotly.graph_objects as go
 st.set_page_config(layout="wide")
 
 matplotlib.use("agg")
@@ -14,7 +16,7 @@ sns.set_style('darkgrid')
 st.title('Downtown Condominium Market')
 
 DATE_COLUMN = 'date/time'
-DATA_PATH = ('data/data_clean5.csv')
+DATA_PATH = ('data/data_clean_full0106.csv')
 @st.cache
 def load_data():
     data = pd.read_csv(DATA_PATH)
@@ -138,32 +140,82 @@ area_select_d=st.selectbox('Select an Area in toronto', list(df.neighbourhood.un
 filtered = df[df.neighbourhood == area_select_d]
 
 #Select a specific area (drilling down)
-neigh_select_d=st.selectbox('Select', list(filtered.area.unique()))
+neigh_select_d=st.selectbox('Select a neighbourhood', list(filtered.area.unique()))
 
 #Filtering data again based on selection
 filtered= filtered[filtered.area == neigh_select_d]
 
-st.write('')
-row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns(
-    (.1, 1, .1, 1, .1))
+
+#creating figure plots 
 
 
-with row5_1, _lock:
+    # Rent Price Histogram for one specific neighbourhood
+    #st.subheader(f'Price Distribution for {area_name}')
+    #fig = Figure()
+    #ax = fig.subplots()
+    #sns.histplot(filtered['price'],ax=ax,binwidth=65)
+    #ax.set_xlabel('Price')
+    #ax.set_ylabel('Count')
+    #ax.bar_label(ax.containers[0])
+    #st.pyplot(fig) """
+    
     # Create Dynamic Title based on Selection (similar to what condos.ca has)
     #{building_name} in {area_name},{neighbourhood_name}, {city_name} e.g. 'Waterclub III in The Waterfront, Downtown, Toronto
     #building_name=filtered['building'].mode()[0]
-    area_name=filtered['area'].mode()[0]
-    neighbourhood_name=filtered['neighbourhood'].mode()[0]
-    city_name=filtered['city'].mode()[0]
+area_name=filtered['area'].mode()[0]
+neighbourhood_name=filtered['neighbourhood'].mode()[0]
+city_name=filtered['city'].mode()[0]
     
-    st.header('Drilled Down Selection')
-    st.markdown('')
-    st.subheader(f'{area_name}, {neighbourhood_name}, {city_name}')
-    st.table(filtered)
+st.markdown('')
+st.header(f'{area_name}, {neighbourhood_name}, {city_name}')
+st.markdown("<hr/>", unsafe_allow_html=True)    
+
+        
+with st.container():
+    col1, col2, col3, col4 = st.columns([10, 10,.1,12])
     
-
-
-with row5_2, _lock:
-    # length of time until completion
-    st.subheader('How Quickly Do You Read?')
+    with col1:
+        st.subheader('Mean Rent Price')
+        mean_rent = int(np.mean(filtered['price']))
+        st.markdown(f"<h1 style='text-align: center; color: white;'>${mean_rent:,}</h1>", unsafe_allow_html=True)
+        
+        st.subheader('Bedroom Distribution')
+        #Distribution for the number of bedrooms 
+        g=sns.catplot(x='bedrooms',kind='count', data=filtered).set_xlabels('Bedrooms').set_ylabels('Count')
+        st.pyplot(g)
+        
+        
+        
+    with col2:
+        st.subheader('Number of Listings')
+        num_listings = len(filtered)
+        st.markdown(f"<h1 style='text-align: center; color: white;'>{num_listings:,}</h1>", unsafe_allow_html=True)
+        st.subheader('Size Distribution')
+        #filtered['size'] = pd.to_numeric(filtered['size'], errors='coerce')
+        #filtered.dropna(inplace=True)
+        fig = Figure()
+        ax = fig.subplots()
+        sns.histplot(pd.to_numeric(filtered['size'],errors='coerce').dropna(), ax=ax)
+        #sns.histplot(filtered['size'],ax=ax,binwidth=65)
+        ax.set_xlabel('Size (Sqft.)')
+        ax.set_ylabel('Count')
+        
+        st.pyplot(fig)
+        
+        
+    with col3:
+        st.write('')
+        
+        
+    with col4:
+        
+        st.subheader(f'Price Distribution')
+        st.write('')
+        fig = Figure()
+        ax = fig.subplots()
+        sns.histplot(filtered['price'],ax=ax,binwidth=65)
+        ax.set_xlabel('Price')
+        ax.set_ylabel('Count')
+        #ax.bar_label(ax.containers[0])
+        st.pyplot(fig)
         
