@@ -10,3 +10,5 @@
    docker run -p 8501:8501 analyticswebapp:latest
 
 ## This repo is responsible for the analytics visualizations
+
+![Dashboard Example](maindashboard.png)
