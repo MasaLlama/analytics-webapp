@@ -169,16 +169,31 @@ city_name=filtered['city'].mode()[0]
 st.markdown('')
 st.header(f'{area_name}, {neighbourhood_name}, {city_name}')
 st.markdown("<hr/>", unsafe_allow_html=True)    
+#Change KPIs to their own row
 
-        
 with st.container():
-    col1, col2, col3, col4 = st.columns([10, 10,.1,12])
+    col1, col2,col3 = st.columns(3)
     
     with col1:
+        st.subheader('Average Rent Price')
+        mean_rent = int(np.mean(filtered['price']))
+        st.markdown(f"<h1 style='text-align: center; color: white;'>${mean_rent:,}</h1>", unsafe_allow_html=True)
+    
+    with col2:
+        st.subheader('Number of Listings')
+        num_listings = len(filtered)
+        st.markdown(f"<h1 style='text-align: center; color: white;'>{num_listings:,}</h1>", unsafe_allow_html=True)
+    
+    with col3:
         st.subheader('Mean Rent Price')
         mean_rent = int(np.mean(filtered['price']))
         st.markdown(f"<h1 style='text-align: center; color: white;'>${mean_rent:,}</h1>", unsafe_allow_html=True)
         
+        
+with st.container():
+    col1, col2, col3 = st.columns([10, 10,12])
+    
+    with col1:
         st.subheader('Bedroom Distribution')
         #Distribution for the number of bedrooms 
         g=sns.catplot(x='bedrooms',kind='count', data=filtered).set_xlabels('Bedrooms').set_ylabels('Count')
@@ -187,30 +202,18 @@ with st.container():
         
         
     with col2:
-        st.subheader('Number of Listings')
-        num_listings = len(filtered)
-        st.markdown(f"<h1 style='text-align: center; color: white;'>{num_listings:,}</h1>", unsafe_allow_html=True)
         st.subheader('Size Distribution')
-        #filtered['size'] = pd.to_numeric(filtered['size'], errors='coerce')
-        #filtered.dropna(inplace=True)
         fig = Figure()
         ax = fig.subplots()
         sns.histplot(pd.to_numeric(filtered['size'],errors='coerce').dropna(), ax=ax)
-        #sns.histplot(filtered['size'],ax=ax,binwidth=65)
         ax.set_xlabel('Size (Sqft.)')
         ax.set_ylabel('Count')
-        
         st.pyplot(fig)
         
         
     with col3:
-        st.write('')
-        
-        
-    with col4:
-        
         st.subheader(f'Price Distribution')
-        st.write('')
+        #st.write('')
         fig = Figure()
         ax = fig.subplots()
         sns.histplot(filtered['price'],ax=ax,binwidth=65)
