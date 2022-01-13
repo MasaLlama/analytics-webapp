@@ -9,6 +9,6 @@
 4. **Create the container**
    docker run -p 8501:8501 analyticswebapp:latest
 
-## This repo is responsible for the analytics visualizations
+## This repo is responsible for the analytics visualizations, heres a preview:
 
 ![Dashboard Example](maindashboard.png)
