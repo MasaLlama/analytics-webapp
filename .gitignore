@@ -1,2 +1,4 @@
 /.vscode
 /env
+user_config.ini
+/data

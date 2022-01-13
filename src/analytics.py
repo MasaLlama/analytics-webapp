@@ -8,6 +8,7 @@ from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 import plotly.express as px
 import plotly.graph_objects as go
+from utils import Configurator
 st.set_page_config(layout="wide")
 
 matplotlib.use("agg")
@@ -15,10 +16,11 @@ _lock = RendererAgg.lock
 sns.set_style('darkgrid')
 st.title('Downtown Condominium Market')
 
-DATE_COLUMN = 'date/time'
-DATA_PATH = ('data/data_clean_full0106.csv')
+
+DATA_PATH = Configurator(section='DATA')['data_path']
+
 @st.cache
-def load_data():
+def load_data(DATA_PATH):
     data = pd.read_csv(DATA_PATH)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
@@ -29,10 +31,11 @@ def load_data():
 data_load_state = st.text('Loading data...')
 # Load 10,000 rows of data into the dataframe.
 #data = load_data(10000)
+df=load_data(DATA_PATH)
 # Notify the reader that the data was successfully loaded.
 data_load_state.text("Done! (using st.cache)")
 
-df=load_data()
+
 has_records=any(df['neighbourhood'])
 #remove duplicate entries
 bool_series = df.duplicated(keep='first')
@@ -118,7 +121,7 @@ with row4_2, _lock:
     #st.markdown("Here is the distribution of average rating by other Goodreads users for the books that you've read. Note that this is a distribution of averages, which explains the lack of extreme values!")
 
 with row4_3, _lock:
-    st.subheader("Areas in Toronto")
+    st.subheader("Median Rent")
     chart_data = df.groupby(['neighbourhood'],as_index=False)['price'].agg([len,np.mean,np.median]).reset_index()
     chart_data.rename(columns={'len':'listings','neighbourhood':'areas'},inplace=True)
     fig = Figure()
@@ -169,7 +172,7 @@ city_name=filtered['city'].mode()[0]
 st.markdown('')
 st.header(f'{area_name}, {neighbourhood_name}, {city_name}')
 st.markdown("<hr/>", unsafe_allow_html=True)    
-#Change KPIs to their own row
+
 
 with st.container():
     col1, col2,col3 = st.columns(3)
@@ -197,8 +200,8 @@ with st.container():
         st.subheader('Bedroom Distribution')
         #Distribution for the number of bedrooms 
         g=sns.catplot(x='bedrooms',kind='count', data=filtered).set_xlabels('Bedrooms').set_ylabels('Count')
+        #g.set_xticklabels(rotation=90)
         st.pyplot(g)
-        
         
         
     with col2:
@@ -208,15 +211,15 @@ with st.container():
         sns.histplot(pd.to_numeric(filtered['size'],errors='coerce').dropna(), ax=ax)
         ax.set_xlabel('Size (Sqft.)')
         ax.set_ylabel('Count')
+        
         st.pyplot(fig)
         
         
     with col3:
         st.subheader(f'Price Distribution')
-        #st.write('')
         fig = Figure()
         ax = fig.subplots()
-        sns.histplot(filtered['price'],ax=ax,binwidth=65)
+        sns.histplot(filtered['price'],ax=ax)
         ax.set_xlabel('Price')
         ax.set_ylabel('Count')
         #ax.bar_label(ax.containers[0])
